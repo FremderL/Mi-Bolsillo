@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mi bolsillo — Ingresos y Egresos</title>
+
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand"><span class="logo">💰</span>Mi bolsillo</h1>
+    <div class="menu">
+      <button id="menu-btn" aria-label="Abrir menú" class="menu-toggle">☰</button>
+      <nav id="menu-panel" class="menu-panel hidden" aria-hidden="true">
+        <ul>
+          <li><button id="toggle-theme">Cambiar tema</button></li>
+          <li><button id="manage-categories">Categorías</button></li>
+          <li><button id="show-filters-btn">Mostrar filtros</button></li>
+          <li><button id="export-open">Exportar</button></li>
+          <li><button id="import-json">Importar</button></li>
+          <li><button id="clear-data">Borrar todo</button></li>
+          <li><button id="set-pin">Configurar PIN</button></li>
+          <li><button id="about">Acerca</button></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" id="app-root">
+    <section class="balance-card" data-section="main">
+      <div>
+        <p class="label">Dinero disponible</p>
+        <h2 id="total-money">--</h2>
+        <div class="summary" id="monthly-summary"></div>
+      </div>
+      <div class="quick-actions">
+        <button id="add-income" class="btn positive">+ Ingreso</button>
+        <button id="add-expense" class="btn negative">- Gasto</button>
+      </div>
+    </section>
+
+    <!-- Filters: inicialmente oculto -->
+    <section class="filters hidden" data-section="filters" id="filters-section">
+      <div class="filter-row">
+        <label class="filter-label">Fecha desde
+          <input type="date" id="filter-start" />
+        </label>
+        <label class="filter-label">Fecha hasta
+          <input type="date" id="filter-end" />
+        </label>
+      </div>
+      <div class="filter-row">
+        <label class="filter-label">Buscar en notas
+          <input type="search" id="filter-note" placeholder="Texto en notas..." />
+        </label>
+      </div>
+      <div class="filter-actions">
+        <button id="apply-filters" class="btn">Aplicar filtros</button>
+        <button id="clear-filters" class="btn">Limpiar</button>
+      </div>
+      <div id="period-summary" class="period-summary muted"></div>
+    </section>
+
+    <section class="segmented" data-section="view-controls">
+      <button class="seg-btn active" data-view="all">Todos</button>
+      <button class="seg-btn" data-view="income">Ingresos</button>
+      <button class="seg-btn" data-view="expense">Egresos</button>
+    </section>
+
+    <section class="list-panel" data-section="list">
+      <div class="chart-wrap"><canvas id="chart" height="180"></canvas></div>
+      <ul id="entries-list" class="entries"></ul>
+      <p id="empty-msg" class="muted">No hay registros.</p>
+    </section>
+  </main>
+
+  <!-- Entrada modal (overlay, no oculta la UI principal) -->
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-hidden="true" data-section="modal">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3 id="modal-title">Nuevo registro</h3>
+        <button id="close-modal" aria-label="Cerrar">✕</button>
+      </header>
+      <form id="entry-form" class="form">
+        <label>Tipo
+          <select id="type" required>
+            <option value="income">Ingreso</option>
+            <option value="expense">Egreso</option>
+          </select>
+        </label>
+        <label>Categoría
+          <select id="category" required>
+            <!-- opciones dinámicas -->
+          </select>
+        </label>
+        <label>Monto
+          <input id="amount" type="number" step="0.01" min="0" required />
+        </label>
+        <label>Fecha
+          <input id="date" type="date" required />
+        </label>
+        <label>Nota
+          <input id="note" type="text" maxlength="240" />
+        </label>
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Guardar</button>
+          <button type="button" id="cancel-modal" class="btn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de categorías / presupuestos -->
+  <div id="cat-modal" class="modal hidden" role="dialog" aria-modal="true" aria-hidden="true" data-section="modal">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3 id="cat-modal-title">Categorías y presupuestos</h3>
+        <button id="close-cat-modal" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="modal-body">
+        <form id="category-form" class="form-inline">
+          <input id="cat-name" type="text" placeholder="Nombre de categoría" required />
+          <select id="cat-type">
+            <option value="both">Ambas</option>
+            <option value="income">Ingreso</option>
+            <option value="expense">Egreso</option>
+          </select>
+          <input id="cat-budget" type="number" step="0.01" min="0" placeholder="Presupuesto (opcional)" />
+          <button id="add-category" class="btn">Agregar</button>
+        </form>
+
+        <ul id="categories-list" class="categories-list"></ul>
+      </div>
+      <div class="form-actions">
+        <button id="close-cat-ok" class="btn primary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export modal: elegir alcance -->
+  <div id="export-modal" class="modal hidden" data-section="modal" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3>Exportar datos</h3>
+        <button id="close-export-modal" aria-label="Cerrar">✕</button>
+      </header>
+      <form id="export-form" class="form">
+        <label>Formato
+          <select id="export-format">
+            <option value="csv">CSV</option>
+            <option value="pdf">PDF</option>
+            <option value="json">JSON</option>
+          </select>
+        </label>
+
+        <label>Alcance
+          <select id="export-scope" required>
+            <option value="all">Todo</option>
+            <option value="category">Por categoría</option>
+            <option value="date">Por rango de fechas</option>
+            <option value="notes">Por notas (texto)</option>
+            <option value="type">Por tipo (Ingreso/Egreso)</option>
+          </select>
+        </label>
+
+        <div id="export-scope-category" class="export-scope-panel hidden">
+          <label>Selecciona categoría
+            <select id="export-category"></select>
+          </label>
+        </div>
+
+        <div id="export-scope-date" class="export-scope-panel hidden">
+          <label>Fecha desde
+            <input type="date" id="export-start" />
+          </label>
+          <label>Fecha hasta
+            <input type="date" id="export-end" />
+          </label>
+        </div>
+
+        <div id="export-scope-notes" class="export-scope-panel hidden">
+          <label>Texto en nota
+            <input id="export-notes-text" type="text" placeholder="texto a buscar..." />
+          </label>
+        </div>
+
+        <div id="export-scope-type" class="export-scope-panel hidden">
+          <label>Tipo
+            <select id="export-type">
+              <option value="income">Ingreso</option>
+              <option value="expense">Egreso</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Generar y descargar</button>
+          <button type="button" id="cancel-export" class="btn">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Overlay de bloqueo + Modal PIN -->
+  <div id="app-lock-overlay" class="app-lock hidden" aria-hidden="true">
+    <div class="pin-modal">
+      <h3>Introduce tu PIN</h3>
+      <form id="pin-form">
+        <input id="pin-input" type="password" inputmode="numeric" pattern="\d{4}" maxlength="4" placeholder="••••" required />
+        <div class="pin-actions">
+          <button id="pin-unlock-btn" class="btn primary" type="submit">Desbloquear</button>
+        </div>
+      </form>
+      <small class="muted">Si no recuerdas tu PIN, ve a Configurar PIN en el menú para restablecerlo (se pedirá el PIN actual).</small>
+    </div>
+  </div>
+
+  <!-- contenedor de toasts -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <input id="import-file" type="file" accept="application/json" class="hidden" />
+
+  <footer class="footer">
+    <small>Datos guardados localmente · PWA lista para instalar</small>
+  </footer>
+
+  <script src="main.js" type="module"></script>
+</body>
+</html>
