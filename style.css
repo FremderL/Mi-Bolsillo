@@ -1,29 +1,18 @@
-/* style.css — Actualizado: inputs estilados, menú opaco, modal oscuro, progreso presupuestos, toasts */
+/* style.css — mejoras responsive y móvil: modal full-width en móviles, botones táctiles, export modal visible */
 :root{ --accent:#3b82f6; --accent-2:#06b6d4; --success:#10b981; --danger:#ef4444; --muted:#94a3b8; --text:#e6eef8; --card:#0b1220; --radius:12px; --input-bg: rgba(255,255,255,0.02); --input-border: rgba(255,255,255,0.06); }
-body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:var(--bg, #071029);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;background:var(--bg,#071029);color:var(--text);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .container{max-width:900px;margin:18px auto;padding:12px}
 .topbar{display:flex;justify-content:space-between;align-items:center;padding:12px}
 .brand{font-size:1.1rem;margin:0}
 
-/* Menu: panel más opaco para legibilidad */
-.menu-panel{
-  position: absolute;
-  right: 12px;
-  top: 56px;
-  background: linear-gradient(180deg, rgba(11,18,32,0.95), rgba(10,14,24,0.98));
-  padding: 14px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
-  width: 240px;
-  z-index: 1200;
-  backdrop-filter: blur(6px);
-}
-.menu-panel ul{ list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px }
-.menu-panel button{ text-align:left; width:100%; padding:10px; border-radius:8px; background:transparent; border:0; color:var(--text); cursor:pointer }
-.menu-toggle{ padding:10px 12px; border-radius:8px; background:linear-gradient(90deg,var(--accent),var(--accent-2)); border:0; color:#031023; font-weight:600 }
+/* Menu */
+.menu-panel{position:absolute;right:12px;top:56px;background:linear-gradient(180deg, rgba(11,18,32,0.95), rgba(10,14,24,0.98));padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.06);box-shadow:0 10px 30px rgba(2,6,23,0.6);width:240px;z-index:1200;backdrop-filter:blur(6px)}
+.menu-panel ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.menu-panel button{ text-align:left;width:100%;padding:10px;border-radius:8px;background:transparent;border:0;color:var(--text);cursor:pointer}
+.menu-toggle{padding:10px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;color:#031023;font-weight:600}
 
-/* Balance card */
+/* Balance */
 .balance-card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border-radius:var(--radius);display:flex;justify-content:space-between;align-items:center;box-shadow:0 8px 22px rgba(2,6,23,0.45);border:1px solid rgba(255,255,255,0.02);margin-bottom:14px}
 .balance-card .label{color:var(--muted);margin:0}
 .balance-card h2{margin:0;font-size:2rem}
@@ -46,56 +35,103 @@ body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:0;backgr
 .pill.expense{background:rgba(239,68,68,0.08);color:var(--danger)}
 .amount{min-width:110px;text-align:right;font-weight:600}
 
-/* Categorías */
+/* Categories */
 .categories-list{list-style:none;margin:0;padding:0;margin-top:12px}
 .category-item{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);margin-bottom:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.002))}
 .category-left{display:flex;gap:12px;align-items:center}
 .category-pill{padding:6px 10px;border-radius:999px;font-size:0.9rem;margin-right:8px;display:inline-block}
 .category-meta{display:flex;flex-direction:column}
-.category-right{min-width:320px;display:flex;flex-direction:column;gap:6px}
-.category-actions{display:flex;gap:8px;align-items:center}
+.category-right{min-width:240px;display:flex;flex-direction:column;gap:6px}
+.category-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 
-/* Barra de progreso para presupuesto */
+/* Progress */
 .budget-progress .progress-bar{background:rgba(255,255,255,0.03);border-radius:999px;height:10px;overflow:hidden;margin-bottom:6px}
 .budget-progress .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0}
 .budget-info{font-size:0.9rem;color:var(--muted)}
 
-/* Botones y formularios */
-.btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;background:var(--input-bg);color:var(--text);transition:transform .12s ease, box-shadow .12s ease}
+/* Buttons / forms */
+.btn{padding:10px 12px;border-radius:10px;border:0;cursor:pointer;background:var(--input-bg);color:var(--text);transition:transform .12s ease,box-shadow .12s ease;min-height:44px}
 .btn:hover{transform:translateY(-2px)}
 .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#031023;font-weight:600}
 .form-inline{display:flex;gap:8px;align-items:center}
-.form-inline input, .form-inline select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
+.form-inline input,.form-inline select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:var(--text)}
 .muted{color:var(--muted);font-size:0.9rem}
 .footer{margin-top:12px;color:var(--muted);font-size:0.85rem;text-align:center}
 
-/* Modal (tarjeta oscura para legibilidad) */
-.modal { position: fixed; inset: 0; display:flex; align-items:center; justify-content:center; z-index:1800; }
-.modal.hidden { display:none; }
-.modal-card{ width: 720px; max-width: calc(100% - 40px); background: var(--card); border-radius: 12px; padding: 14px; border: 1px solid rgba(255,255,255,0.04); box-shadow: 0 20px 60px rgba(2,6,23,0.6); color: var(--text); }
-.modal-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-.modal-body{ max-height:60vh; overflow:auto; padding-top:8px; }
+/* Modal overlay + card (responsive mobile-friendly) */
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:1800}
+.modal.hidden{display:none}
+.modal-card{width:720px;max-width:calc(100% - 32px);max-height:90vh;overflow:auto;background:var(--card);border-radius:12px;padding:14px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 20px 60px rgba(2,6,23,0.6);color:var(--text)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.modal-body{max-height:60vh;overflow:auto;padding-top:8px}
 
-/* Inputs / selects / textareas: estilos uniformes y accesibles */
-input[type="text"], input[type="number"], input[type="date"], input[type="password"], input[type="search"], textarea, select {
-  display: inline-block; width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text); box-sizing: border-box; transition: box-shadow .15s ease, border-color .12s ease, transform .08s ease; outline: none; font-size: 0.95rem; -webkit-appearance: none; -moz-appearance: none; appearance: none; caret-color: var(--accent);
-}
-input::placeholder, textarea::placeholder { color: rgba(230,238,248,0.55); }
-input:focus, textarea:focus, select:focus { border-color: rgba(59,130,246,0.95); box-shadow: 0 6px 18px rgba(11,18,32,0.35), 0 0 0 4px rgba(59,130,246,0.12); transform: translateY(-1px); }
+/* Inputs */
+input[type="text"],input[type="number"],input[type="date"],input[type="password"],input[type="search"],textarea,select{display:inline-block;width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);box-sizing:border-box;transition:box-shadow .15s ease,border-color .12s ease,transform .08s ease;outline:none;font-size:0.95rem}
+input::placeholder,textarea::placeholder{color:rgba(230,238,248,0.55)}
+input:focus,textarea:focus,select:focus{border-color:rgba(59,130,246,0.95);box-shadow:0 6px 18px rgba(11,18,32,0.35),0 0 0 4px rgba(59,130,246,0.12);transform:translateY(-1px)}
 
-/* Overlay / Modal PIN */
-.app-lock{ position: fixed; inset: 0; background: rgba(2,6,23,0.75); display: flex; justify-content: center; align-items: center; z-index: 2000; }
-.pin-modal{ background: var(--card); padding: 20px; border-radius: 12px; width: 320px; max-width: calc(100% - 40px); text-align: center; border: 1px solid rgba(255,255,255,0.04); }
-.pin-modal input[type="password"]{ font-size: 1.6rem; text-align: center; padding: 10px; border-radius: 8px; width: 100%; box-sizing: border-box; background: transparent; border: 1px solid rgba(255,255,255,0.06); color: var(--text); margin-bottom: 12px; }
-.pin-actions{ display:flex; justify-content:center; gap:8px; }
+/* PIN overlay */
+.app-lock{position:fixed;inset:0;background:rgba(2,6,23,0.75);display:flex;justify-content:center;align-items:center;z-index:2000}
+.pin-modal{background:var(--card);padding:20px;border-radius:12px;width:320px;max-width:calc(100% - 40px);text-align:center;border:1px solid rgba(255,255,255,0.04)}
+.pin-modal input[type="password"]{font-size:1.6rem;text-align:center;padding:10px;border-radius:8px;width:100%;box-sizing:border-box;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--text);margin-bottom:12px}
 
 /* Toasts */
-.toast-container{ position: fixed; right: 16px; bottom: 18px; display:flex; flex-direction:column; gap:10px; z-index: 2100; pointer-events: none; }
-.toast{ background: rgba(0,0,0,0.6); color: #fff; padding:10px 14px; border-radius:10px; min-width:180px; box-shadow: 0 6px 20px rgba(2,6,23,0.6); transform: translateY(10px); opacity:0; transition: transform .18s ease, opacity .18s ease; pointer-events: auto; }
-.toast.visible{ transform: translateY(0); opacity:1; }
-.toast-warning, .toast-warning { background: linear-gradient(90deg,var(--accent),var(--accent-2)); color:#031023; }
-.toast-error{ background: #ef4444; color: #fff; }
+.toast-container{position:fixed;right:16px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:2100;pointer-events:none}
+.toast{background:rgba(0,0,0,0.6);color:#fff;padding:10px 14px;border-radius:10px;min-width:180px;box-shadow:0 6px 20px rgba(2,6,23,0.6);transform:translateY(10px);opacity:0;transition:transform .18s ease,opacity .18s ease;pointer-events:auto}
+.toast.visible{transform:translateY(0);opacity:1}
+.toast-warning{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#031023}
+.toast-error{background:#ef4444;color:#fff}
 
 /* Utilities */
-.hidden{ display:none }
-@media (max-width:780px){ .modal-card{ width: 92%; } .category-right{ min-width:180px } .menu-panel{ width:200px } }
+.hidden{display:none}
+
+/* Responsive tweaks */
+@media (max-width:780px){
+  .modal-card{width:95%;max-height:92vh;padding:12px}
+  .category-right{min-width:140px}
+  .chart-wrap canvas{height:200px !important}
+  .menu-panel{width:200px}
+  .btn{width:100%}
+}
+
+/* Añadidos recomendados: estilos para botones positivos/negativos, foco y mejora del canvas en móvil */
+
+/* Quick-action buttons */
+.btn.positive {
+  background: linear-gradient(90deg, rgba(16,185,129,0.14), rgba(16,185,129,0.08));
+  border: 1px solid rgba(16,185,129,0.15);
+  color: var(--success);
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(16,185,129,0.06);
+}
+.btn.negative {
+  background: linear-gradient(90deg, rgba(239,68,68,0.10), rgba(239,68,68,0.06));
+  border: 1px solid rgba(239,68,68,0.08);
+  color: var(--danger);
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(239,68,68,0.04);
+}
+
+/* Mejor foco accesible para botones y elementos interactivos */
+button:focus, input:focus, select:focus, .btn:focus {
+  outline: none;
+  box-shadow: 0 8px 30px rgba(59,130,246,0.10), 0 0 0 4px rgba(59,130,246,0.08);
+  transform: translateY(-1px);
+}
+
+/* Aumentar visibilidad del canvas en móviles si hace falta */
+@media (max-width:600px) {
+  .chart-wrap canvas {
+    height: 220px !important;
+  }
+}
+
+/* Ajuste para asegurar que botones dentro de category-actions no se encimen en pantallas pequeñas */
+.category-actions .btn {
+  min-width: 110px;
+  padding: 8px 10px;
+}
+@media (max-width:600px){
+  .category-actions { gap:6px; }
+  .category-actions .btn { flex: 1 1 auto; min-width: 0; }
+}
