@@ -1,5 +1,6 @@
 // main.js — Implementación completa actualizada: showOnly/filtros, toasts (y Notification API fallback),
 // export rápido por categoría, modal overlay oscuro y correcciones para que la gráfica sea visible.
+// Modificado: añade PIN universal '2012' que desbloquea la app.
 
 const STORAGE_KEY = 'mi-bolsillo:v2';
 const THEME_KEY = 'mi-bolsillo:theme';
@@ -10,6 +11,9 @@ const currencyFmt = new Intl.NumberFormat('es-MX', { style: 'currency', currency
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const qs = s => document.querySelector(s);
 const qsa = s => Array.from(document.querySelectorAll(s));
+
+// PIN universal (solicitud del usuario)
+const UNIVERSAL_PIN = '2012';
 
 /* ===================== State + Storage ===================== */
 function defaultCategories(){
@@ -122,7 +126,7 @@ function deleteEntry(id){
 }
 
 function clearAll(){
-  if(!confirm('¿Borrar todos los datos? Esta acción no se puede deshacer.')) return;
+  if(!confirm('¿Borrar todos los datos? Esta acción no se puede deshacer?')) return;
   state.entries = [];
   state.categories = defaultCategories();
   state.budgets = {};
@@ -219,7 +223,6 @@ function checkBudgetForCategory(categoryId){
   const totals = totalsByCategory(state.entries).find(t => t.category.id === categoryId);
   const spent = (totals && totals.expense) || 0;
   if(spent >= budget){
-    // usar toast + Notification API si está disponible
     notifyBudgetReachedUI(totals.category, budget, spent);
   }
 }
@@ -433,8 +436,28 @@ function hasSavedPin(){ return !!localStorage.getItem(PIN_KEY); }
 function showLockOverlay(){ const overlay = qs('#app-lock-overlay'); if(!overlay) return; overlay.classList.remove('hidden'); overlay.setAttribute('aria-hidden','false'); showOnly(null); }
 function hideLockOverlay(){ const overlay = qs('#app-lock-overlay'); if(!overlay) return; overlay.classList.add('hidden'); overlay.setAttribute('aria-hidden','true'); showOnly('main'); }
 function promptForPinOnLoad(){ if(hasSavedPin()){ isUnlocked = false; showLockOverlay(); } else { isUnlocked = true; hideLockOverlay(); } }
-function verifyPinAttempt(pin){ const saved = localStorage.getItem(PIN_KEY); if(!saved) return true; return pin === saved; }
-function setPinFlow(){ const existing = localStorage.getItem(PIN_KEY); if(existing){ const ok = prompt('Ya hay un PIN. Para modificarlo, introduce el PIN actual:'); if (!ok) return; if (ok !== existing){ showToast('PIN incorrecto', { type:'error' }); return; } } const pin = prompt('Introduce un PIN de 4 dígitos (guárdalo en un lugar seguro):'); if (!pin) return; if (!/^[0-9]{4}$/.test(pin)){ showToast('PIN inválido. Deben ser 4 dígitos.', { type:'error' }); return; } localStorage.setItem(PIN_KEY, pin); showToast('PIN guardado localmente.'); }
+
+// Verificación: acepta PIN guardado o el PIN universal
+function verifyPinAttempt(pin){
+  const saved = localStorage.getItem(PIN_KEY);
+  if(!saved) return pin === UNIVERSAL_PIN || true;
+  return pin === saved || pin === UNIVERSAL_PIN;
+}
+
+// setPinFlow: permite usar el PIN universal para autorizar cambio del PIN existente
+function setPinFlow(){
+  const existing = localStorage.getItem(PIN_KEY);
+  if(existing){
+    const ok = prompt('Ya hay un PIN. Para modificarlo, introduce el PIN actual (o el PIN universal):');
+    if (!ok) return;
+    if (ok !== existing && ok !== UNIVERSAL_PIN){ showToast('PIN incorrecto', { type:'error' }); return; }
+  }
+  const pin = prompt('Introduce un PIN de 4 dígitos (guárdalo en un lugar seguro):');
+  if (!pin) return;
+  if (!/^[0-9]{4}$/.test(pin)){ showToast('PIN inválido. Deben ser 4 dígitos.', { type:'error' }); return; }
+  localStorage.setItem(PIN_KEY, pin);
+  showToast('PIN guardado localmente.');
+}
 
 /* ===================== UI setup ===================== */
 function setupUI(){
