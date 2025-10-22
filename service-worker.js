@@ -1,7 +1,7 @@
 const CACHE_NAME = 'mi-bolsillo-cache-v2';
 const ASSETS = [
   '/',
-  '/index.html',
+  '/index.htm',
   '/style.css',
   '/main.js',
   '/libs/chart.min.js',
@@ -15,3 +15,4 @@ self.addEventListener('activate', e=>{ e.waitUntil(caches.keys().then(keys=> Pro
 self.addEventListener('fetch', e=>{
   if (e.request.method !== 'GET') return;
   e.respondWith(caches.match(e.request).then(cached=> cached || fetch(e.request).then(resp=>{ if (resp && resp.status===200 && resp.type==='basic'){ const copy = resp.clone(); caches.open(CACHE_NAME).then(cache=>cache.put(e.request, copy)); } return resp; }).catch(()=>{ if (e.request.headers.get('accept')?.includes('text/html')) return caches.match('/index.html'); }))); });
+
